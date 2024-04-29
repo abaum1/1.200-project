@@ -51,10 +51,10 @@ def get_reward(state, action):
     # for each route performance type, get the number of missing trips from the state
     # multiple each type by the respective performance penality, add together to get the total reward.
 
-    #TODO: fix this so that the naive reward is calcualted with the resulting missing trips of each route type
-    # after the action has been taken.
-    missing_low_perf = state[1] + state[3]
-    missing_high_perf = state[2] + state[4]
+    # TODO: check that this is correct
+    missing_low_perf = (state[1] + state[3]) - (action[1] + action[3]) # the current number of missing trips on the low performance routes - 
+    # the trips that have been filled on those routes by the specific action
+    missing_high_perf = (state[2] + state[4]) - (action[2] + action[4])
     return base_reward - (PERFORMANCE_PENALTY['high'] * missing_high_perf +
                           PERFORMANCE_PENALTY['low'] * missing_low_perf)
 
@@ -102,16 +102,18 @@ def step(prev_state, action=None):
 
 
 def naive_policy(state):
-    #TODO: implement naive policy.
-    #simple policy is used to get full workflow working and also to be a benchmark to compare DP results to.
-    pass
-    # remaining_extraboard = state[-1]
+    # state: (time_step, route1, route2, route3, route4, extraboard_remaining)
+    # TODO: implement naive policy.
+    # simple policy is used to get full workflow working and also to be a benchmark to compare DP results to.
+    # Naive policy is that we will assign the extraboard in order of routes with the most missing trips to the least
+    remaining_extraboard = state[-1]
+    # missing_trips = state[1:5]
+    idx_max_missing_trip = state.index(max(state)) # the index of the route with the most missing trips.
+    action = [0,0,0,0] ## action is [num_exboard_assigned_route1, num_exboard_assigned_route2, num_exboard_assigned_route3, num_exboard_assigned_route4]
+    action[idx_max_missing_trip] = state[idx_max_missing_trip]
     # action_set = get_valid_actions()
 
     ## some logic for simple policy
-    # missing_trips = state[1:5]
-    # idx_max_missing_trip = ## get the index of the route with the maximum missing trips
-    # action = ## assign max extraboard
 
     # total_extraboard_used = sum(state[1:5])
     # if (total_extraboard_used > state[-1]):
@@ -120,11 +122,6 @@ def naive_policy(state):
     # might lead to illegal actions (such as more extraboard assigned than what is available)
 
 
-# states = [
-#     generate_state(time_period_idx, 4, route_headways)
-#     for time_period_idx in np.arange(6)
-# ]
-# print(states)
 state = generate_state(0, 4, route_headways, 30)
 print(state)
 for i in range(6):
@@ -135,10 +132,10 @@ for i in range(6):
     print(state, action, reward, next_state)
     state = next_state
 
-#scenarios
-#1. uniform % absenteeism over routes and over the course of the day
-#2. % absenteeism varies based on the route (lower performance, higher absenteeism)
-#3. % absenteeism varies based on time of day (maybe higher in the afternoon).
+# scenarios
+# 1. uniform % absenteeism over routes and over the course of the day
+# 2. % absenteeism varies based on the route (lower performance, higher absenteeism)
+# 3. % absenteeism varies based on time of day (maybe higher in the afternoon).
 # True because: PM shifts more likely to be staffed by more junior operators who call out more
 # and because OT is more attractive in the morning (morning missing shifts may be filled by volunteers rather
 # than by extraboard).
