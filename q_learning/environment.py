@@ -67,9 +67,8 @@ class Environment:
         reward = self.get_reward(state, action)
         next_state = self.transition(state, action)
         done = True if next_state[
-            0] == 480 else False  #TODO: check if this is the right termination logic
+            0] == 480 else False  # TODO: check if this is the right termination logic
         return next_state, reward, done
 
     def reset(self):
         self.q_table = np.zeros_like(self.q_table)
-
