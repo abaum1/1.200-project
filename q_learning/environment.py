@@ -1,8 +1,7 @@
 import numpy as np
 from scenario1_setup import generate_state
-import env as env
+import settings as env
 import helpers as helpers
-# DISCOUNT_FACTOR, ROUTE_HEADWAYS, LEARNING_STEPS, LEARNING_RATE, EXPLORATION_RATE, PERFORMANCE_PENALTY
 
 
 class Environment:
@@ -74,23 +73,3 @@ class Environment:
     def reset(self):
         self.q_table = np.zeros_like(self.q_table)
 
-
-# Example usage
-num_states = 480
-num_actions = 81
-num_episodes = 30000
-
-environment = Environment(num_states, num_actions)
-
-for episode in range(num_episodes):
-    state = generate_state(0, 4, ROUTE_HEADWAYS, 30)
-    done = False
-
-    while not done:
-
-        action = environment.choose_action(state)
-        next_state, reward, done = environment.step(state, action)
-        environment.update_q_table(state, action, reward, next_state)
-        state = next_state
-
-    environment.reset()

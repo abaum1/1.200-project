@@ -9,17 +9,14 @@ from typing import List, Tuple
 #               (PERFORMANCE)
 
 ROUTE_IDS = ['A', 'B', 'C', 'D']
-
-## we wont change it
 ROUTE_PERFORMANCE_LEVELS = {'A': 'high', 'B': 'low', 'C': 'high', 'D': 'low'}
-
 ROUTE_FREQUENCY = {'A': 'high', 'B': 'high', 'C': 'low', 'D': 'low'}
 
 # route headway. Amything headways <10 min is "high frequency"
 HEADWAYS = {'high': 10, 'low': 30}
 
-## penalty wil be used for the reward by subtracting the reward by:
-## penaly * n_missing_trips
+# penalty wil be used for the reward by subtracting the reward by:
+# penaly * n_missing_trips
 # Eventually get this form an empirical distribution
 PERFORMANCE_PENALTY = {
     'high': 0.1,  # high perf
