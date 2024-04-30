@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from typing import List
+from typing import List, Tuple
 
 #
 # H   |   L (FREQUENCY)
@@ -52,9 +52,11 @@ def get_reward(state, action):
     # multiple each type by the respective performance penality, add together to get the total reward.
 
     # TODO: check that this is correct
-    missing_low_perf = (state[1] + state[3]) - (action[1] + action[3]) # the current number of missing trips on the low performance routes - 
+    missing_low_perf = (state[0] + state[2]) - (
+        action[0] + action[2]
+    )  # the current number of missing trips on the low performance routes -
     # the trips that have been filled on those routes by the specific action
-    missing_high_perf = (state[2] + state[4]) - (action[2] + action[4])
+    missing_high_perf = (state[1] + state[3]) - (action[1] + action[3])
     return base_reward - (PERFORMANCE_PENALTY['high'] * missing_high_perf +
                           PERFORMANCE_PENALTY['low'] * missing_low_perf)
 
@@ -101,35 +103,37 @@ def step(prev_state, action=None):
 # the highest reward. We'll define the reward as well.
 
 
-def naive_policy(state):
+def naive_policy(state: Tuple) -> List:
+    # returns an action
     # state: (time_step, route1, route2, route3, route4, extraboard_remaining)
-    # TODO: implement naive policy.
     # simple policy is used to get full workflow working and also to be a benchmark to compare DP results to.
-    # Naive policy is that we will assign the extraboard in order of routes with the most missing trips to the least
+    # Naive policy is that we will assign the extraboard in order of routes with the most missing trips to the least,
+    # in a greedy manner s.t. all of the missing trips of a given route are filled and we only move on to the next route
+    # if there is still remaining extraboard.
     remaining_extraboard = state[-1]
-    # missing_trips = state[1:5]
-    idx_max_missing_trip = state.index(max(state)) # the index of the route with the most missing trips.
-    action = [0,0,0,0] ## action is [num_exboard_assigned_route1, num_exboard_assigned_route2, num_exboard_assigned_route3, num_exboard_assigned_route4]
-    action[idx_max_missing_trip] = state[idx_max_missing_trip]
-    # action_set = get_valid_actions()
 
-    ## some logic for simple policy
+    sorted_route_indices = sorted(list(enumerate(state[1:5])) , key=lambda x: x[1], reverse=True)
+    indices_increasing_order = [index for index, _ in sorted_route_indices]
 
-    # total_extraboard_used = sum(state[1:5])
-    # if (total_extraboard_used > state[-1]):
-    #     return [0, 0, 0, 0]
+    action = np.zeros(4)
+    for index in indices_increasing_order:
+        action[index] = min(
+            remaining_extraboard, state[index+1]
+        )  # action is set to the number of missing trips that are assigned to that route
+        remaining_extraboard = remaining_extraboard - action[index]
 
-    # might lead to illegal actions (such as more extraboard assigned than what is available)
+    return list(action)
 
 
-state = generate_state(0, 4, route_headways, 30)
-print(state)
+state = generate_state(0, 4, route_headways, 30)  # generate initial state
 for i in range(6):
-    action = [1, 1, 1, 1]
-    next_state = step(state, action=action)
-    # print(next_state)
-    reward = get_reward(state, action)
-    print(state, action, reward, next_state)
+    action = naive_policy(
+        state)  # at every timestep, compute a new action based on the state
+    reward = get_reward(state, action)  # get the reward of that next state
+    next_state = step(
+        state, action=action
+    )  # get the next state as a function of the previous state and the action
+    print('state', state, 'action', action, 'reward', reward, 'next_state', next_state)
     state = next_state
 
 # scenarios
