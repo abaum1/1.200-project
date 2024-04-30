@@ -87,7 +87,6 @@ def generate_state(time_period_idx: int, time_period_length: int,
 def step(prev_state, action=None):
     if action is None:
         action = list(np.random.randint(0, 2, size=4))
-        print('action', action)
     used_extraboard = sum(action)
     remaining_extraboard = prev_state[-1] - used_extraboard
     time_period_idx = prev_state[0] + 1
@@ -133,7 +132,7 @@ for i in range(6):
     next_state = step(
         state, action=action
     )  # get the next state as a function of the previous state and the action
-    print('state', state, 'action', action, 'reward', reward, 'next_state', next_state)
+    #print('state', state, 'action', action, 'reward', reward, 'next_state', next_state)
     state = next_state
 
 # scenarios
@@ -143,3 +142,23 @@ for i in range(6):
 # True because: PM shifts more likely to be staffed by more junior operators who call out more
 # and because OT is more attractive in the morning (morning missing shifts may be filled by volunteers rather
 # than by extraboard).
+
+
+
+
+# possibilities per state: (6, ~8, 10) = 480 states. need to store the index of each of these states in th Q table
+# actions 3 options^4 routes = 81 actions
+# Q-table has state action pairs (480x81) = 38,880
+
+#1. initialize 480x81 q table to all 0s
+#2. for in num_learning steps (episodes, 4 hour time block) (ex: 30k):
+    # 1. action selection: receive a state, take an action, advance to next_state, get the reward: (s, a, r, s') - Q learning update (epsilon)
+    # 2. update of the Q value (subject to the Q update function)
+    # 3. when the episode ends give a new initial state (reset the environment). TODO: wrap the environment into a class
+    # use epsilon to control explotation vs explotation. sometimes a will be result of max(a) of an s (exploit), somtimes its a random action (explore)
+
+# environment class
+    # class method: reset the function
+    # class method: step (take action and state as params, return next state)
+
+
