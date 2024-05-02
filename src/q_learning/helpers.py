@@ -1,20 +1,22 @@
 import numpy as np
 from typing import List, Dict
-from env import PERFORMANCE_PENALTY, MAX_MISSING_TRIPS_PCT
+from settings import PERFORMANCE_PENALTY, MAX_MISSING_TRIPS_PCT
 
 
 def generate_state(time_period_idx: int, time_period_length: int,
-                   route_headways: List[int], remaining_extraboard) -> tuple:
+                   route_headways: List[int],
+                   remaining_extraboard) -> tuple:
 
     pct_missing_uniform = np.random.uniform(0, MAX_MISSING_TRIPS_PCT, 1)[0]
-    # total_daily_extraboard = 30
     missing_trips_for_routes = [
         pct_trips_to_missing_trips(time_period_length, pct_missing_uniform,
                                    route_headway)
         for route_headway in route_headways
     ]
 
-    return time_period_idx, *missing_trips_for_routes, remaining_extraboard
+    state = time_period_idx, *missing_trips_for_routes, remaining_extraboard
+
+    return state
 
 
 def get_reward(state, action):
