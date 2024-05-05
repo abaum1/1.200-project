@@ -35,24 +35,6 @@ def generate_state(time_period_idx: int, time_period_length: int,
     return state
 
 
-def get_reward(state, action):
-    # we use the route type because this is not encoded in the state
-    # we want the agent to "learn" which routes are more vulnerable than others
-    base_reward = 1
-
-    # for each route performance type, get the number of missing trips from the state
-    # multiple each type by the respective performance penality, add together to get the total reward.
-
-    # TODO: check that this is correct
-    missing_low_perf = (state[0] + state[2]) - (
-        action[0] + action[2]
-    )  # the current number of missing trips on the low performance routes -
-    # the trips that have been filled on those routes by the specific action
-    missing_high_perf = (state[1] + state[3]) - (action[1] + action[3])
-    return base_reward - (PERFORMANCE_PENALTY['high'] * missing_high_perf +
-                          PERFORMANCE_PENALTY['low'] * missing_low_perf)
-
-
 def pct_trips_to_missing_trips(time_period_length: int,
                                pct_missing_trips: float,
                                route_headway: int) -> int:
