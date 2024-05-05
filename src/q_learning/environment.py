@@ -66,7 +66,7 @@ class Environment:
     def get_reward(self, state: Tuple[int], action: Tuple[int]) -> float:
         # we use the route type because this is not encoded in the state
         # we want the agent to "learn" which routes are more vulnerable than others
-        base_reward = 1
+        base_reward = 0
         missing_low_perf = (state[0] + state[2]) - (
             action[0] + action[2]
         )  # the current number of missing trips on the low performance routes -
@@ -74,6 +74,7 @@ class Environment:
         # demand will be correlated with frequency. maybe keepit simple if the performance penality is assumed to encapsulate all those
         # can also vary the weights as part of the scenario analysis
         missing_high_perf = (state[1] + state[3]) - (action[1] + action[3])
+        # the higher the combined penalty, the worse the reward is. 
         return base_reward - (
             settings.PERFORMANCE_PENALTY['high'] * missing_high_perf +
             settings.PERFORMANCE_PENALTY['low'] * missing_low_perf)

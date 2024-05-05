@@ -35,16 +35,16 @@ ROUTE_HEADWAYS = [
 ]
 
 # time period: 1 day (24 hours, 6 4-hour periods).
-time_period_hrs = 4
-time_horizon_hrs = 24
+TIME_PERIOD_HOURS = 4
+TIME_HORIZON_HOURS = 24
 
 DAILY_TOTAL_EXTRABOARD = 10
 MAX_MISSING_TRIPS_PCT = 0.3
 
 DISCOUNT_FACTOR = 0.9
-EXPLORATION_RATE = 0.1
+EXPLORATION_RATE = 0.01
 LEARNING_RATE = 0.1  # how quickly you want to update the Q table. If too small, too slow. If too fast, the update function is too jerky.
-LEARNING_STEPS = 30000  # 6 timesteps per episode, 30k episodes = days simulating.
+LEARNING_STEPS = 3000  # 6 timesteps per episode, 30k episodes = days simulating.
 
 NUM_STATES = 480
 NUM_ACTIONS = 81  # 3*3*3*3
