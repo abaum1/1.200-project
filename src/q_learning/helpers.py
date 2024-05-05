@@ -17,7 +17,7 @@ def filter_for_valid_actions(all_actions: List[Tuple[int]],
             and state[3] >= action[2] and state[4] >= action[3])
     ]
 
-    return filtered_actions
+    return [all_actions.index(item) for item in filtered_actions]
 
 
 def generate_state(time_period_idx: int, time_period_length: int,

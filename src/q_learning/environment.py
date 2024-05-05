@@ -19,24 +19,24 @@ class Environment:
         self.discount_factor = discount_factor
         self.exploration_rate = exploration_rate
 
-    def choose_action(self, state_idx: int,
-                      possible_actions: List[Tuple[int]]) -> tuple[int]:
-        '''This implements the epsilon greedy strategy where epsilon is randomly generated and if it is less than the exploration
-        rate, we "explore" by choosing a random action, otherwise we explot by choosing the action that has the highest reward.'''
-        epsilon = np.random.uniform(0, 1)
-        #TODO: this is retunring 0 because the q table is empty.
-        if epsilon < self.exploration_rate:
-            return np.random.choice(len(self.q_table[state_idx])) # randomly choose an index
-        else:
-            return np.argmax(
-                self.q_table[state_idx]
-            )  # choose the action_idx with the highest q value
-        # TODO: need to filter only the valid actions which are a fn of extraboard. action idx.
-        # if all or some are 0 (of it the max is 0), if theres a tie, randomly choose. the actions are not 0, the values are 0.
+    def choose_action(
+            self, state_idx: int, possible_action_indices: List[int],
+            all_actions: List[Tuple[int]]) -> Tuple[int, Tuple[int, int]]:
+        '''This implements the epsilon greedy strategy where epsilon is randomly generated and 
+        if it is less than the exploration rate, we "explore" by choosing a random action, 
+        otherwise we exploit by choosing the action that has the highest reward.'''
 
-    #TODO:
-    # filter out invalid actions and change data strucure so that we actually return a tuple
-    # consider making the reward negative
+        epsilon = np.random.uniform(0, 1)
+        if epsilon < self.exploration_rate:
+            action_idx = np.random.choice(
+                possible_action_indices
+            )  # randomly choose an index that corresponds to the index in the action array
+        else:
+            # choose the action_idx with the highest q value
+            action_idx = np.argmax(
+                self.q_table[state_idx][possible_action_indices])
+
+        return action_idx, all_actions[action_idx]
 
     def update_q_table(self, state_idx: int, action_idx: int, reward: float,
                        next_state_idx: int, done: bool) -> None:
@@ -57,7 +57,7 @@ class Environment:
             self.q_table[state_idx, action_idx] = new_q_value
             print("q table updated")
 
-    def get_reward(state: tuple[int], action: tuple[int]) -> float:
+    def get_reward(self, state: Tuple[int], action: Tuple[int]) -> float:
         # we use the route type because this is not encoded in the state
         # we want the agent to "learn" which routes are more vulnerable than others
         base_reward = 1
@@ -72,9 +72,9 @@ class Environment:
             settings.PERFORMANCE_PENALTY['high'] * missing_high_perf +
             settings.PERFORMANCE_PENALTY['low'] * missing_low_perf)
 
-    #think about demand for each route (passengers impacted). or is this encapsuated in the
+    # think about demand for each route (passengers impacted). or is this encapsuated in the
 
-    def transition(state: tuple[int], action: tuple[int]) -> tuple[int]:
+    def transition(self, state: tuple[int], action: tuple[int]) -> tuple[int]:
         '''Given the current state and action, compute what the next state will be. Currently this is influenced by the action
         directly because of the number of available extraboard is reduced, but it is partially stochastic because the number of missing
         trips at each time period is randomly generated.'''
@@ -86,12 +86,11 @@ class Environment:
                                             remaining_extraboard_after_action)
         return next_state
 
-    def step(self, state: tuple[int], action: tuple[int]) -> List[Any]:
-        #TODO: this isn't working because action is 0, it should be a tuple. need to fix the update_q_table fn
+    def step(self, state: Tuple[int], action: Tuple[int]) -> List[Any]:
         reward = self.get_reward(state, action)
         next_state = self.transition(state, action)
         done = True if next_state[
-            0] == 480 else False  # each episode is a day. There are 6 timesteps within a day. When the day finishes, the episode is done.
+            0] == 6 else False  # each episode is a day. There are 6 timesteps within a day. When the day finishes, the episode is done.
         return next_state, reward, done
 
     def reset(self) -> None:
