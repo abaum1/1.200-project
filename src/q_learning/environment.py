@@ -14,7 +14,7 @@ class Environment:
                  exploration_rate=settings.EXPLORATION_RATE):
         self.q_table = np.zeros(
             (num_states,
-             num_actions))  # TODO: do I need to initialize this differently?
+             num_actions)) 
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.exploration_rate = exploration_rate
@@ -33,16 +33,23 @@ class Environment:
             )  # randomly choose an index that corresponds to the index in the action array
         else:
             # choose the action_idx with the highest q value
-            action_idx = np.argmax(
+            possible_action_idx = np.argmax(
                 self.q_table[state_idx][possible_action_indices])
+            action_idx = possible_action_indices[possible_action_idx]
+            
+        assert action_idx in possible_action_indices
 
         return action_idx, all_actions[action_idx]
 
     def update_q_table(self, state_idx: int, action_idx: int, reward: float,
-                       next_state_idx: int, done: bool) -> None:
+                       next_state_idx: int = None, done: bool = False) -> None:
         if done:
             # TODO: if it's a terminal state then there's no next_q_value
-            NotImplementedError
+            q_value = self.q_table[
+                state_idx,
+                action_idx]  # get current q value for the state and action index
+            new_q_value = q_value + self.learning_rate * (reward - q_value)
+            self.q_table[state_idx, action_idx] = new_q_value
         else:
             q_value = self.q_table[
                 state_idx,
@@ -55,7 +62,6 @@ class Environment:
                 q_value  #TODO: because the reward is positive Q values will be biased higher. 
             )  # q update equation to determine new q value
             self.q_table[state_idx, action_idx] = new_q_value
-            print("q table updated")
 
     def get_reward(self, state: Tuple[int], action: Tuple[int]) -> float:
         # we use the route type because this is not encoded in the state

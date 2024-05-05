@@ -4,6 +4,7 @@ from q_learning.helpers import generate_state, filter_for_valid_actions
 from itertools import product
 import settings
 import state_probabilities
+import numpy as np
 
 if __name__ == "__main__":
 
@@ -28,14 +29,29 @@ if __name__ == "__main__":
 
         while not done:
             state_idx = all_states.index(state)
-            possible_actions = filter_for_valid_actions(all_actions, state) # which actions can you take from a given state
-            action = environment.choose_action(
-                state_idx, possible_actions)  # filter for valid actions only
-            action_idx = all_actions.index(action)
+            possible_action_indices = filter_for_valid_actions(
+                all_actions,
+                state)  # which actions can you take from a given state
+            action_idx, action = environment.choose_action(
+                state_idx, possible_action_indices,
+                all_actions)  # filter for valid actions only
             next_state, reward, done = environment.step(state, action)
-            next_state_idx = all_states.index(next_state)
-            environment.update_q_table(state_idx, action_idx, reward,
-                                       next_state_idx, done)
+            next_state_idx = all_states.index(
+                next_state) if next_state[0] < 6 else None
+            environment.update_q_table(state_idx,
+                                       action_idx,
+                                       reward,
+                                       next_state_idx,
+                                       done)
             state = next_state
 
-        environment.reset()
+        print("Episode ", episode)
+        print("Learned Q-table has ", np.count_nonzero(environment.q_table), " nonzero elements")
+        # print(environment.q_table)
+
+        # track the mean of the latest 100 rewards (rolling average)
+        # sum/average the reward for each step per episode
+        # x axis: episide number, y is mean reward
+        # rolling average of each 50 episides or just plot every 50
+
+    # environment.reset()
