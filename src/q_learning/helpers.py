@@ -1,11 +1,27 @@
 import numpy as np
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from settings import PERFORMANCE_PENALTY, MAX_MISSING_TRIPS_PCT
 
 
+def filter_for_valid_actions(all_actions: List[Tuple[int]],
+                             state: Tuple[int]) -> List[Tuple[int]]:
+    # the sum of the action cannot be greater than the remaining extraboard
+    actions_less_remaining_xboard = [
+        action for action in all_actions if sum(action) <= state[-1]
+    ]
+
+    # and any action index cannot be greater than the corresponding number of missing trips for the route
+    filtered_actions = [
+        action for action in actions_less_remaining_xboard
+        if (state[1] >= action[0] and state[2] >= action[1]
+            and state[3] >= action[2] and state[4] >= action[3])
+    ]
+
+    return filtered_actions
+
+
 def generate_state(time_period_idx: int, time_period_length: int,
-                   route_headways: List[int],
-                   remaining_extraboard) -> tuple:
+                   route_headways: List[int], remaining_extraboard) -> tuple:
 
     pct_missing_uniform = np.random.uniform(0, MAX_MISSING_TRIPS_PCT, 1)[0]
     missing_trips_for_routes = [
