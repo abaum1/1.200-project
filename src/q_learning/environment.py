@@ -12,37 +12,45 @@ class Environment:
                  learning_rate=settings.LEARNING_RATE,
                  discount_factor=settings.DISCOUNT_FACTOR,
                  exploration_rate=settings.EXPLORATION_RATE):
-        self.q_table = np.zeros(
-            (num_states,
-             num_actions)) 
+        self.q_table = np.zeros((num_states, num_actions))
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.exploration_rate = exploration_rate
 
-    def choose_action(
-            self, state_idx: int, possible_action_indices: List[int],
-            all_actions: List[Tuple[int]]) -> Tuple[int, Tuple[int, int]]:
+    def choose_action(self,
+                      state_idx: int,
+                      possible_action_indices: List[int],
+                      all_actions: List[Tuple[int]],
+                      force_greedy=False, q_table=None) -> Tuple[int, Tuple[int, int]]:
         '''This implements the epsilon greedy strategy where epsilon is randomly generated and 
         if it is less than the exploration rate, we "explore" by choosing a random action, 
-        otherwise we exploit by choosing the action that has the highest reward.'''
+        otherwise we exploit by choosing the action that has the highest reward. When we use this fn
+        for testing, we will use a pre-computed q table and optionally force the function to always
+        use the greedy policy regardless of the randomly generated epsilon.'''
+
+        selected_q_table = q_table if q_table is not None else self.q_table
 
         epsilon = np.random.uniform(0, 1)
-        if epsilon < self.exploration_rate:
+        if epsilon < self.exploration_rate and force_greedy is False:
             action_idx = np.random.choice(
                 possible_action_indices
             )  # randomly choose an index that corresponds to the index in the action array
         else:
             # choose the action_idx with the highest q value
             possible_action_idx = np.argmax(
-                self.q_table[state_idx][possible_action_indices])
+                selected_q_table[state_idx][possible_action_indices])
             action_idx = possible_action_indices[possible_action_idx]
-            
+
         assert action_idx in possible_action_indices
 
         return action_idx, all_actions[action_idx]
 
-    def update_q_table(self, state_idx: int, action_idx: int, reward: float,
-                       next_state_idx: int = None, done: bool = False) -> None:
+    def update_q_table(self,
+                       state_idx: int,
+                       action_idx: int,
+                       reward: float,
+                       next_state_idx: int = None,
+                       done: bool = False) -> None:
         if done:
             # TODO: if it's a terminal state then there's no next_q_value
             q_value = self.q_table[
@@ -74,7 +82,7 @@ class Environment:
         # demand will be correlated with frequency. maybe keepit simple if the performance penality is assumed to encapsulate all those
         # can also vary the weights as part of the scenario analysis
         missing_high_perf = (state[1] + state[3]) - (action[1] + action[3])
-        # the higher the combined penalty, the worse the reward is. 
+        # the higher the combined penalty, the worse the reward is.
         return base_reward - (
             settings.PERFORMANCE_PENALTY['high'] * missing_high_perf +
             settings.PERFORMANCE_PENALTY['low'] * missing_low_perf)
