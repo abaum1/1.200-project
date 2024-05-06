@@ -40,13 +40,20 @@ ROUTE_HEADWAYS = [
 TIME_PERIOD_HOURS = 4
 TIME_HORIZON_HOURS = 24
 
-DAILY_TOTAL_EXTRABOARD = 10
-MAX_MISSING_TRIPS_PCT = 0.3
+DAILY_TOTAL_EXTRABOARD = 15 # maybe run it with this and with a higher number closer to reality like 30-40
+MAX_MISSING_TRIPS_PCT = 0.3 # I think this is reasonable. A lot of the routes seem to be missing 7-15% so uniform dist over [0, .3] seems ok.
 
-DISCOUNT_FACTOR = 0.9
-EXPLORATION_RATE = 0.01
-LEARNING_RATE = 0.1  # how quickly you want to update the Q table. If too small, too slow. If too fast, the update function is too jerky.
-LEARNING_STEPS = 10000  # 6 timesteps per episode, 30k episodes = days simulating.
+
+# best combination from grid search: discount: 0.95, learning: 0.01 exploration: 0.1
+DISCOUNT_FACTOR = 0.95
+EXPLORATION_RATE = 0.1
+LEARNING_RATE = 0.01  # how quickly you want to update the Q table. If too small, too slow. If too fast, the update function is too jerky.
+LEARNING_STEPS = 10  # 6 timesteps per episode, 30k episodes = days simulating.
+
+
+GRID_SEARCH_DISCOUNT_FACTORS = [0.9, 0.95, 0.99]
+GRID_SEARCH_LEARNING_RATES = [0.1, 0.05, 0.01, 0.005]
+GRID_SEARCH_EXPLORATION_RATES = [.01, .05, .1, .12]
 
 NUM_STATES = 480
 NUM_ACTIONS = 81  # 3*3*3*3
