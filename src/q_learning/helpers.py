@@ -1,6 +1,19 @@
 import numpy as np
 from typing import List, Dict, Tuple
 from settings import PERFORMANCE_PENALTY, MAX_MISSING_TRIPS_PCT
+import pandas as pd
+import pickle
+
+
+def save_q_table(q_table: pd.DataFrame, file_path: str):
+    with open(file_path, 'wb') as f:
+        pickle.dump(q_table, f)
+
+
+def load_q_table(file_path: str):
+    with open(file_path, 'rb') as f:
+        q_table = pickle.load(f)
+    return q_table
 
 
 def filter_for_valid_actions(all_actions: List[Tuple[int]],
