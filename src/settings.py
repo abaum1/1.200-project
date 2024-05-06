@@ -12,18 +12,20 @@ ROUTE_IDS = ['A', 'B', 'C', 'D']
 ROUTE_PERFORMANCE_LEVELS = {'A': 'high', 'B': 'low', 'C': 'high', 'D': 'low'}
 ROUTE_FREQUENCY = {'A': 'high', 'B': 'high', 'C': 'low', 'D': 'low'}
 
-# route headway. Amything headways <10 min is "high frequency"
-HEADWAYS = {'high': 10, 'low': 30}
+# average scheduled headway for routes in each group. Groups are defined as:
+# high frequency: scheduled headways < 15 mins
+# low frequency: scheduled headways >= 15 mins
+# for now start with narrower distribution. May also want to try this with more extreme differences (extremely high/extremely low)
+HEADWAYS = {'high': 12, 'low': 18}
 
 # penalty will be used for the reward by subtracting the reward by:
 # penaly * n_missing_trips
 # This penalizes performance based on staffing differentially by the route frequency. This is linear but the penalty should probably
 # be exponential.
-# Eventually get this form an empirical distribution. If this doesnt work, try making this more aggressive, or make it time dependant
-# so that the PM has a higher penalty on staffing. Can make the reward proportional to that.
+
 PERFORMANCE_PENALTY = {
-    'high': 0.1,  # high freq
-    'low': 0.2  # low freq
+    'high': 0.09,  # high freq - <15 mins
+    'low': 0.14  # low freq - >= 15 mins
 }
 
 # From Haris: vulnerability becomes a factor if you have different levels of it, more continuous not an attribute.
@@ -44,7 +46,7 @@ MAX_MISSING_TRIPS_PCT = 0.3
 DISCOUNT_FACTOR = 0.9
 EXPLORATION_RATE = 0.01
 LEARNING_RATE = 0.1  # how quickly you want to update the Q table. If too small, too slow. If too fast, the update function is too jerky.
-LEARNING_STEPS = 3000  # 6 timesteps per episode, 30k episodes = days simulating.
+LEARNING_STEPS = 10000  # 6 timesteps per episode, 30k episodes = days simulating.
 
 NUM_STATES = 480
 NUM_ACTIONS = 81  # 3*3*3*3
