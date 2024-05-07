@@ -2,14 +2,14 @@ import numpy as np
 import pandas as pd
 from typing import List, Tuple
 
-#
-# H   |   L (FREQUENCY)
-# A   |   B    | H
-# C   |   D    | L
-#               (PERFORMANCE)
 
 ROUTE_IDS = ['A', 'B', 'C', 'D']
-ROUTE_PERFORMANCE_LEVELS = {'A': 'high', 'B': 'low', 'C': 'high', 'D': 'low'}
+### Route characteristics:
+# A low vulnerability, high freq
+# B high vulnerability, high freq
+# C low vulnerability, low freq
+# D high vulnerability, low freq
+ROUTE_VULNERABILITY_LEVELS = {'A': 'low', 'B': 'high', 'C': 'low', 'D': 'high'}
 ROUTE_FREQUENCY = {'A': 'high', 'B': 'high', 'C': 'low', 'D': 'low'}
 
 # average scheduled headway for routes in each group. Groups are defined as:
@@ -23,9 +23,9 @@ HEADWAYS = {'high': 12, 'low': 18}
 # This penalizes performance based on staffing differentially by the route frequency. This is linear but the penalty should probably
 # be exponential.
 
-PERFORMANCE_PENALTY = {
-    'high': 0.09,  # high freq - <15 mins
-    'low': 0.14  # low freq - >= 15 mins
+PERFORMANCE_PENALTY = { # high and low refer to vulnerability, in real world inversely related to freq.
+    'low': 0.09,  # low vulnerability penality - <15 mins
+    'high': 0.14  # high vulnerability penality - >= 15 mins
 }
 
 # From Haris: vulnerability becomes a factor if you have different levels of it, more continuous not an attribute.
@@ -35,6 +35,8 @@ PERFORMANCE_PENALTY = {
 ROUTE_HEADWAYS = [
     HEADWAYS['high'], HEADWAYS['high'], HEADWAYS['low'], HEADWAYS['low']
 ]
+
+
 
 # time period: 1 day (24 hours, 6 4-hour periods).
 TIME_PERIOD_HOURS = 4
