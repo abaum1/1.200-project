@@ -49,7 +49,7 @@ DISCOUNT_FACTOR = 0.95
 EXPLORATION_RATE = 0.1
 LEARNING_RATE = 0.01  # how quickly you want to update the Q table. If too small, too slow. If too fast, the update function is too jerky.
 LEARNING_STEPS = 10000  # 6 timesteps per episode, 30k episodes = days simulating.
-TESTING_NUM_EPISODES = 10
+TESTING_NUM_EPISODES = 20
 
 GRID_SEARCH_DISCOUNT_FACTORS = [0.9, 0.95, 0.99]
 GRID_SEARCH_LEARNING_RATES = [0.1, 0.05, 0.01, 0.005]

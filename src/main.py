@@ -113,7 +113,7 @@ if __name__ == "__main__":
     # run_with_constants(all_states, all_actions, settings.DISCOUNT_FACTOR,
     #                    settings.LEARNING_RATE, settings.EXPLORATION_RATE)
 
-    total_rewards, average_reward, assigned_route_results = run_evaluation(
+    assigned_route_results = run_evaluation(
         all_states, all_actions, settings.DISCOUNT_FACTOR,
         settings.LEARNING_RATE, settings.EXPLORATION_RATE)
 
