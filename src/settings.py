@@ -1,10 +1,5 @@
-import numpy as np
-import pandas as pd
-from typing import List, Tuple
-
-
 ROUTE_IDS = ['A', 'B', 'C', 'D']
-### Route characteristics:
+# Route characteristics:
 # A low vulnerability, high freq
 # B high vulnerability, high freq
 # C low vulnerability, low freq
@@ -23,7 +18,7 @@ HEADWAYS = {'high': 12, 'low': 18}
 # This penalizes performance based on staffing differentially by the route frequency. This is linear but the penalty should probably
 # be exponential.
 
-PERFORMANCE_PENALTY = { # high and low refer to vulnerability, in real world inversely related to freq.
+PERFORMANCE_PENALTY = {  # high and low refer to vulnerability, in real world inversely related to freq.
     'low': 0.09,  # low vulnerability penality - <15 mins
     'high': 0.14  # high vulnerability penality - >= 15 mins
 }
@@ -36,15 +31,12 @@ ROUTE_HEADWAYS = [
     HEADWAYS['high'], HEADWAYS['high'], HEADWAYS['low'], HEADWAYS['low']
 ]
 
-
-
 # time period: 1 day (24 hours, 6 4-hour periods).
 TIME_PERIOD_HOURS = 4
 TIME_HORIZON_HOURS = 24
 
-DAILY_TOTAL_EXTRABOARD = 15 # maybe run it with this and with a higher number closer to reality like 30-40
-MAX_MISSING_TRIPS_PCT = 0.3 # I think this is reasonable. A lot of the routes seem to be missing 7-15% so uniform dist over [0, .3] seems ok.
-
+DAILY_TOTAL_EXTRABOARD = 15  # maybe run it with this and with a higher number closer to reality like 30-40
+MAX_MISSING_TRIPS_PCT = 0.3  # I think this is reasonable. A lot of the routes seem to be missing 7-15% so uniform dist over [0, .3] seems ok.
 
 # best combination from grid search: discount: 0.95, learning: 0.01 exploration: 0.1
 DISCOUNT_FACTOR = 0.95

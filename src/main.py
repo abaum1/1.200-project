@@ -4,7 +4,6 @@ from q_learning.helpers import generate_state, filter_for_valid_actions, save_q_
 from itertools import product
 import settings
 import state_probabilities
-import numpy as np
 from collections import deque
 import pandas as pd
 from typing import List, Tuple
@@ -91,10 +90,6 @@ def run_with_constants(all_states: List[Tuple[int]],
         f'src/results/q_table_s1_steps{settings.LEARNING_STEPS}_h{settings.TIME_HORIZON_HOURS}_expl{explore_rt}_dis{discount_factor}_learn{learning_rt}_high{settings.PERFORMANCE_PENALTY["high"]}_low{settings.PERFORMANCE_PENALTY["low"]}.pkl'
     )
 
-    # pd.DataFrame(final_q_table).to_csv(
-    #     f'src/results/q_table_s1_steps{settings.LEARNING_STEPS}_h{settings.TIME_HORIZON_HOURS}_expl{explore_rt}_dis{discount_factor}_learn{learning_rt}_high{settings.PERFORMANCE_PENALTY["high"]}_low{settings.PERFORMANCE_PENALTY["low"]}.csv'
-    # )
-
 
 if __name__ == "__main__":
 
@@ -113,16 +108,10 @@ if __name__ == "__main__":
     # run_with_constants(all_states, all_actions, settings.DISCOUNT_FACTOR,
     #                    settings.LEARNING_RATE, settings.EXPLORATION_RATE)
 
-    assigned_route_results = run_evaluation(
-        all_states, all_actions, settings.DISCOUNT_FACTOR,
-        settings.LEARNING_RATE, settings.EXPLORATION_RATE)
-
-    # if (episode + 1) % 100 == 0:
-
-    #     print(
-    #         f"Episode: {episode:4d} | Nonzero Q-table elements: {np.count_nonzero(environment.q_table)} | Rolling Average Reward: {rolling_average_reward:.2f}"
-    #     )
-    # print(environment.q_table)
+    assigned_route_results = run_evaluation(all_states, all_actions,
+                                            settings.DISCOUNT_FACTOR,
+                                            settings.LEARNING_RATE,
+                                            settings.EXPLORATION_RATE, 'naive')
 
     # track the mean of the latest 100 rewards (rolling average)
     # sum/average the reward for each step per episode

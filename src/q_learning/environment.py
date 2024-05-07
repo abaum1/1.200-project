@@ -15,15 +15,41 @@ class Environment:
         self.q_table = np.zeros((num_states, num_actions))
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
-        self.exploration_rate = exploration_rate
+        self.exploration_rate = exploration_rate\
+
+
+    def choose_naive_action(
+            self, state: Tuple[int], possible_action_indices: List[int],
+            all_actions: List[Tuple[int]]) -> Tuple[int, Tuple[int, int]]:
+        '''This implements the naive policy where extraboard is assigned in a greedy manner in order of
+        routes with most missing trips to least.'''
+
+        remaining_extraboard = state[-1]
+
+        sorted_route_indices = sorted(list(enumerate(state[1:5])),
+                                      key=lambda x: x[1],
+                                      reverse=True)
+        indices_increasing_order = [index for index, _ in sorted_route_indices]
+
+        action = np.zeros(4)
+        for index in indices_increasing_order:
+            action[index] = min(
+                remaining_extraboard, state[index + 1]
+            )  # action is set to the number of missing trips that are assigned to that route
+            remaining_extraboard = remaining_extraboard - action[index]
+
+        assert all_actions.index(action) in possible_action_indices
+
+        return action
 
     def choose_action(self,
                       state_idx: int,
                       possible_action_indices: List[int],
                       all_actions: List[Tuple[int]],
-                      force_greedy=False, q_table=None) -> Tuple[int, Tuple[int, int]]:
-        '''This implements the epsilon greedy strategy where epsilon is randomly generated and 
-        if it is less than the exploration rate, we "explore" by choosing a random action, 
+                      force_greedy=False,
+                      q_table=None) -> Tuple[int, Tuple[int, int]]:
+        '''This implements the epsilon greedy strategy where epsilon is randomly generated and
+        if it is less than the exploration rate, we "explore" by choosing a random action,
         otherwise we exploit by choosing the action that has the highest reward. When we use this fn
         for testing, we will use a pre-computed q table and optionally force the function to always
         use the greedy policy regardless of the randomly generated epsilon.'''
@@ -52,7 +78,6 @@ class Environment:
                        next_state_idx: int = None,
                        done: bool = False) -> None:
         if done:
-            # TODO: if it's a terminal state then there's no next_q_value
             q_value = self.q_table[
                 state_idx,
                 action_idx]  # get current q value for the state and action index
@@ -66,26 +91,20 @@ class Environment:
                 self.q_table[next_state_idx]
             )  # get the best action of the ones currently saved in the q table for this state
             new_q_value = q_value + self.learning_rate * (
-                reward + self.discount_factor * max_next_q_value -
-                q_value  #TODO: because the reward is positive Q values will be biased higher. 
+                reward + self.discount_factor * max_next_q_value - q_value
             )  # q update equation to determine new q value
             self.q_table[state_idx, action_idx] = new_q_value
 
     def get_reward(self, state: Tuple[int], action: Tuple[int]) -> float:
-        # we use the route type because this is not encoded in the state
-        # we want the agent to "learn" which routes are more vulnerable than others
         base_reward = 0
-        missing_low_perf = (state[0] + state[2]) - (
-            action[0] + action[2]
-        )  # the current number of missing trips on the low performance routes -
-        # the trips that have been filled on those routes by the specific action
-        # demand will be correlated with frequency. maybe keepit simple if the performance penality is assumed to encapsulate all those
-        # can also vary the weights as part of the scenario analysis
-        missing_high_perf = (state[1] + state[3]) - (action[1] + action[3])
+        missing_low_vulnerability = (state[0] + state[2]) - (action[0] +
+                                                             action[2])
+        missing_high_vulnerability = (state[1] + state[3]) - (action[1] +
+                                                              action[3])
         # the higher the combined penalty, the worse the reward is.
         return base_reward - (
-            settings.PERFORMANCE_PENALTY['high'] * missing_high_perf +
-            settings.PERFORMANCE_PENALTY['low'] * missing_low_perf)
+            settings.PERFORMANCE_PENALTY['high'] * missing_high_vulnerability +
+            settings.PERFORMANCE_PENALTY['low'] * missing_low_vulnerability)
 
     # think about demand for each route (passengers impacted). or is this encapsuated in the
 

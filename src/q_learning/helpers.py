@@ -1,6 +1,6 @@
 import numpy as np
-from typing import List, Dict, Tuple
-from settings import PERFORMANCE_PENALTY, MAX_MISSING_TRIPS_PCT
+from typing import List, Tuple
+from settings import MAX_MISSING_TRIPS_PCT
 import pandas as pd
 import pickle
 
