@@ -13,17 +13,15 @@ def run_evaluation(all_states: List[Tuple[int]], all_actions: List[Tuple[int]],
     environment = Environment(len(all_states), len(all_actions), learning_rt,
                               discount_factor, explore_rt)
 
-    if policy == 'RL':
-
-        q_table = load_q_table(
-            f'src/results/q_table_s1_steps{settings.LEARNING_STEPS}_h{settings.TIME_HORIZON_HOURS}_expl{settings.EXPLORATION_RATE}_dis{settings.DISCOUNT_FACTOR}_learn{settings.LEARNING_RATE}_high{settings.PERFORMANCE_PENALTY["high"]}_low{settings.PERFORMANCE_PENALTY["low"]}.pkl'
-        )
+    q_table = load_q_table(
+        f'src/results/q_table_s1_steps{settings.LEARNING_STEPS}_h{settings.TIME_HORIZON_HOURS}_expl{settings.EXPLORATION_RATE}_dis{settings.DISCOUNT_FACTOR}_learn{settings.LEARNING_RATE}_high{settings.PERFORMANCE_PENALTY["high"]}_low{settings.PERFORMANCE_PENALTY["low"]}.pkl'
+    ) if policy == 'RL' else None
 
     results = test_policy(all_states,
                           all_actions,
-                          q_table,
                           environment,
                           policy,
+                          q_table,
                           num_episodes=settings.TESTING_NUM_EPISODES)
 
     results.to_csv(
@@ -35,9 +33,9 @@ def run_evaluation(all_states: List[Tuple[int]], all_actions: List[Tuple[int]],
 
 def test_policy(all_states: List[Tuple[int]],
                 all_actions: List[Tuple[int]],
-                q_table,
                 environment,
                 policy: str = 'RL',
+                q_table=None,
                 num_episodes=settings.TESTING_NUM_EPISODES):
     assigned_route_1 = []
     assigned_route_2 = []
@@ -69,6 +67,7 @@ def test_policy(all_states: List[Tuple[int]],
                 )  # force_greedy = True for testing because our goal is to assess the performance of the learned policy.
 
             elif policy == 'naive':
+                # TODO: for the naive policy there is a larger number of potential actions. Think about how to calculate this.
                 action = environment.choose_naive_action(
                     state, possible_action_indices, all_actions)
             elif policy == 'random':

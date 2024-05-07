@@ -1,9 +1,8 @@
 # from 1_200_project import settings
 from q_learning.environment import Environment
-from q_learning.helpers import generate_state, filter_for_valid_actions, save_q_table, load_q_table
+import q_learning.helpers as helpers
 from itertools import product
 import settings
-import state_probabilities
 from collections import deque
 import pandas as pd
 from typing import List, Tuple
@@ -20,14 +19,14 @@ def run_model(all_states: List[Tuple[int]], all_actions: List[Tuple[int]],
     results_by_episode = []
 
     for episode in range(settings.LEARNING_STEPS):
-        state = generate_state(0, settings.TIME_PERIOD_LENGTH,
-                               settings.ROUTE_HEADWAYS,
-                               settings.DAILY_TOTAL_EXTRABOARD)
+        state = helpers.generate_state(0, settings.TIME_PERIOD_LENGTH,
+                                       settings.ROUTE_HEADWAYS,
+                                       settings.DAILY_TOTAL_EXTRABOARD)
         done = False
 
         while not done:
             state_idx = all_states.index(state)
-            possible_action_indices = filter_for_valid_actions(
+            possible_action_indices = helpers.filter_for_valid_actions(
                 all_actions,
                 state)  # which actions can you take from a given state
             action_idx, action = environment.choose_action(
@@ -85,7 +84,7 @@ def run_with_constants(all_states: List[Tuple[int]],
         f'src/results/results_s1_steps{settings.LEARNING_STEPS}_h{settings.TIME_HORIZON_HOURS}_expl{explore_rt}_dis{discount_factor}_learn{learning_rt}_high{settings.PERFORMANCE_PENALTY["high"]}_low{settings.PERFORMANCE_PENALTY["low"]}.csv'
     )
 
-    save_q_table(
+    helpers.save_q_table(
         final_q_table,
         f'src/results/q_table_s1_steps{settings.LEARNING_STEPS}_h{settings.TIME_HORIZON_HOURS}_expl{explore_rt}_dis{discount_factor}_learn{learning_rt}_high{settings.PERFORMANCE_PENALTY["high"]}_low{settings.PERFORMANCE_PENALTY["low"]}.pkl'
     )
@@ -93,12 +92,11 @@ def run_with_constants(all_states: List[Tuple[int]],
 
 if __name__ == "__main__":
 
-    all_states = state_probabilities.generate_all_states()
-    all_actions = list(
-        product(settings.ASSIGNMENT_OPTIONS_PER_ROUTE,
-                settings.ASSIGNMENT_OPTIONS_PER_ROUTE,
-                settings.ASSIGNMENT_OPTIONS_PER_ROUTE,
-                settings.ASSIGNMENT_OPTIONS_PER_ROUTE))
+    all_states = helpers.generate_all_states()
+    all_actions = helpers.generate_potential_actions(
+        settings.ASSIGNMENT_OPTIONS_PER_ROUTE
+    )  # set to ASSIGNMENT_OPTIONS_PER_ROUTE for RL policy,
+    # set to DAILY_TOTAL_EXTRABOARD for naive policy because the naive policy requires a larger action space
 
     # run_with_grid_search(all_states, all_actions,
     #                      settings.GRID_SEARCH_DISCOUNT_FACTORS,
@@ -111,9 +109,5 @@ if __name__ == "__main__":
     assigned_route_results = run_evaluation(all_states, all_actions,
                                             settings.DISCOUNT_FACTOR,
                                             settings.LEARNING_RATE,
-                                            settings.EXPLORATION_RATE, 'naive')
+                                            settings.EXPLORATION_RATE, 'RL')
 
-    # track the mean of the latest 100 rewards (rolling average)
-    # sum/average the reward for each step per episode
-    # x axis: episide number, y is mean reward
-    # rolling average of each 50 episides or just plot every 50
